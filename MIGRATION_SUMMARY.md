@@ -309,6 +309,8 @@ VITE_SENTRY_DSN             # Error tracking
 ## 🔮 Future Enhancements
 
 ### Short Term (v1.1)
+- [ ] Configure CI/CD pipelines (GitHub Actions / GitLab CI)
+- [ ] Set up deployment automation
 - [ ] Add unit tests with Jest
 - [ ] Implement E2E tests
 - [ ] TypeScript migration
