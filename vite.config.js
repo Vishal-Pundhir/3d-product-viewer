@@ -21,15 +21,19 @@ export default defineConfig({
         manualChunks: (id) => {
           // Vendor chunks
           if (id.includes('node_modules')) {
+            // React vendor
+            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
+              return 'react-vendor';
+            }
+            // Three.js
             if (id.includes('three')) {
               return 'three';
             }
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor';
-            }
+            // Axios
             if (id.includes('axios')) {
-              return 'axios';
+              return 'axios-vendor';
             }
+            // All other vendors
             return 'vendor';
           }
           
