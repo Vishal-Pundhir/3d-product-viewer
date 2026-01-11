@@ -67,7 +67,6 @@ Successfully migrated the **3D Gaussian Splat Viewer** (View3DNew) from the 360-
 - ✅ Comprehensive `README.md`
 - ✅ Detailed `INTEGRATION_GUIDE.md`
 - ✅ Version history in `CHANGELOG.md`
-- ✅ Embed example (`public/embed.html`)
 - ✅ API documentation
 
 ### 10. Project Finalization ✓
