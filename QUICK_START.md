@@ -172,23 +172,19 @@ git clean -fd
 
 ## 🎯 Next Steps
 
-1. **Push to GitHub**
+1. **Push to GitHub** (when ready)
    ```bash
    git remote add origin https://github.com/spyne-ai-tech/3d-product.git
    git push -u origin main
    ```
 
-2. **Set up GitHub Secrets**
-   - `VITE_API_BASE_URL`
-   - `VITE_S3_BUCKET_URL`
-   - `VITE_CLOUDFRONT_URL`
+2. **Configure Deployment** (to be set up later)
+   - Choose deployment platform (Vercel / Netlify / AWS)
+   - Configure environment variables
+   - Set up custom domain
+   - Configure CDN
 
-3. **Deploy**
-   - Vercel / Netlify / AWS
-   - Configure custom domain
-   - Set up CDN
-
-4. **Monitor**
+3. **Monitor** (post-deployment)
    - Add Sentry for error tracking
    - Set up analytics
    - Monitor performance
@@ -199,16 +195,16 @@ git clean -fd
 
 Before deploying to production:
 
+- [ ] Set up CI/CD pipeline
 - [ ] Update API endpoints in `.env.production`
 - [ ] Test with real SKU IDs
 - [ ] Verify CORS configuration
+- [ ] Configure deployment platform
 - [ ] Set up error tracking (Sentry)
 - [ ] Configure CDN
 - [ ] Test on mobile devices
-- [ ] Check bundle sizes
 - [ ] Enable HTTPS
 - [ ] Set up monitoring
-- [ ] Update documentation with production URL
 
 ---
 

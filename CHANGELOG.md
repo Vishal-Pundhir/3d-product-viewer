@@ -57,6 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned Features
+- [ ] CI/CD pipeline setup (GitHub Actions, GitLab CI, etc.)
+- [ ] Deployment automation
 - [ ] TypeScript migration
 - [ ] Unit tests with Jest and React Testing Library
 - [ ] E2E tests with Playwright
