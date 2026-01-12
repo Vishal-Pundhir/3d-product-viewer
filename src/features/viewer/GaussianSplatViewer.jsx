@@ -31,6 +31,7 @@ const GaussianSplatViewer = ({
   className = '',
   style = {},
 }) => {
+  const containerRef = useRef(null);
   const viewerRef = useRef(null);
   const lightsRef = useRef([]);
   const [loading, setLoading] = useState(true);
@@ -49,6 +50,11 @@ const GaussianSplatViewer = ({
         const err = new AppError('SKU ID is required', ErrorCodes.NO_SKU_ID);
         setError(err);
         if (onError) onError(err);
+        return;
+      }
+
+      // Wait for container to be available
+      if (!containerRef.current) {
         return;
       }
 
@@ -78,9 +84,10 @@ const GaussianSplatViewer = ({
 
         logger.debug('Optimal settings:', optimalSettings);
 
-        // Create viewer instance
+        // Create viewer instance with rootElement to render inside our container
         viewer = new Viewer({
           ...VIEWER_CONFIG,
+          rootElement: containerRef.current,
           initialCameraPosition,
           initialCameraLookAt: DEFAULT_CAMERA_LOOK_AT,
           ...optimalSettings,
@@ -218,9 +225,10 @@ const GaussianSplatViewer = ({
     );
   }
 
-  // Render viewer container immediately - core engine has built-in loader
+  // Render viewer container - core engine renders its canvas inside this element
   return (
     <div
+      ref={containerRef}
       className={`w-full h-full ${className}`}
       style={style}
       id="gaussian-splat-viewer-container"

@@ -12952,6 +12952,8 @@ class Viewer {
 
         // parent element of the Three.js renderer canvas
         this.rootElement = options.rootElement;
+        // Track if rootElement was provided externally (vs auto-created)
+        this.rootElementWasProvided = !!options.rootElement;
 
         // Tells the viewer to pretend the device pixel ratio is 1, which can boost performance on devices where it is larger,
         // at a small cost to visual quality
@@ -14430,7 +14432,8 @@ class Viewer {
                 this.renderer = null;
             }
 
-            if (!this.usingExternalRenderer) {
+            // Only remove rootElement from body if it was auto-created (not provided externally)
+            if (!this.usingExternalRenderer && !this.rootElementWasProvided) {
                 document.body.removeChild(this.rootElement);
             }
 
