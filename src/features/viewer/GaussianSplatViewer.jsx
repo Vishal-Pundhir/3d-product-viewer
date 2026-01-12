@@ -218,20 +218,7 @@ const GaussianSplatViewer = ({
     );
   }
 
-  if (loading) {
-    return (
-      <div
-        className={`flex items-center justify-center h-full ${className}`}
-        style={style}
-      >
-        <div className="text-center text-white">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Loading 3D Viewer...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Render viewer container immediately - core engine has built-in loader
   return (
     <div
       className={`w-full h-full ${className}`}
