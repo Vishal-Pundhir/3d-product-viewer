@@ -18,7 +18,7 @@ class SkuService {
     const filename = (deliverType === 'BG' || deliverType === 'GRADIENT') 
       ? 'point_cloud_cropped.ply' 
       : 'point_cloud.ply';
-    return `${config.api.s3BucketUrl}/processed/${skuId}/${versionId}/${filename}`;
+    return `${config.api.cloudFrontUrl}/processed/${skuId}/${versionId}/${filename}`;
   }
 
   /**
@@ -28,7 +28,7 @@ class SkuService {
    * @returns {string} Output config URL
    */
   getOutputConfigUrl(skuId, versionId) {
-    return `${config.api.s3BucketUrl}/processed/${skuId}/${versionId}/output.json`;
+    return `${config.api.cloudFrontUrl}/processed/${skuId}/${versionId}/output.json`;
   }
 
   /**
