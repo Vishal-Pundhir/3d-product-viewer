@@ -38,7 +38,7 @@ const GaussianSplatViewer = ({
   const [error, setError] = useState(null);
   const [customBackground, setCustomBackground] = useState(backgroundUrl);
 
-  const { loadModel, cleanupModel, addLights, removeLights } = useGLBLoader(viewerRef.current);
+  const { loadModel, cleanupModel, addLights, removeLights } = useGLBLoader(viewerRef);
 
   useEffect(() => {
     let mounted = true;

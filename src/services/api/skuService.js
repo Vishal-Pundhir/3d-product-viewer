@@ -59,7 +59,8 @@ class SkuService {
    * @returns {string} Background GLB URL
    */
   getBackgroundUrl(bgId) {
-    return `${config.api.cloudFrontUrl}/background/${bgId}/bg.glb`;
+    // return `${config.api.cloudFrontUrl}/background/${bgId}/bg.glb`;
+    return `${config.api.cloudFrontUrl}/bg.glb`;
   }
 
   /**

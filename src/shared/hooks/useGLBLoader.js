@@ -4,14 +4,15 @@ import * as THREE from 'three';
 
 /**
  * Custom hook for loading GLB/GLTF models
- * @param {Object} viewer - The viewer instance
+ * @param {Object} viewerRef - React ref containing the viewer instance
  * @returns {Object} GLB loading utilities
  */
-const useGLBLoader = (viewer) => {
+const useGLBLoader = (viewerRef) => {
   const glbModelRef = useRef(null);
   const loaderRef = useRef(new GLTFLoader());
 
   const cleanupModel = useCallback(() => {
+    const viewer = viewerRef?.current;
     if (glbModelRef.current && viewer?.threeScene) {
       viewer.threeScene.remove(glbModelRef.current);
 
@@ -32,10 +33,11 @@ const useGLBLoader = (viewer) => {
       glbModelRef.current = null;
       console.log('[GLB] Model cleaned up successfully');
     }
-  }, [viewer]);
+  }, [viewerRef]);
 
   const loadModel = useCallback(
     async (urlOrFile) => {
+      const viewer = viewerRef?.current;
       if (!viewer?.threeScene) {
         throw new Error('Viewer not initialized');
       }
@@ -97,10 +99,11 @@ const useGLBLoader = (viewer) => {
         );
       });
     },
-    [viewer]
+    [viewerRef]
   );
 
   const addLights = useCallback(() => {
+    const viewer = viewerRef?.current;
     if (!viewer?.threeScene) return [];
 
     const lights = [];
@@ -125,10 +128,11 @@ const useGLBLoader = (viewer) => {
     console.log('[GLB] Lights added to scene');
 
     return lights;
-  }, [viewer]);
+  }, [viewerRef]);
 
   const removeLights = useCallback(
     (lights) => {
+      const viewer = viewerRef?.current;
       if (!viewer?.threeScene || !lights) return;
 
       lights.forEach((light) => {
@@ -138,7 +142,7 @@ const useGLBLoader = (viewer) => {
 
       console.log('[GLB] Lights removed from scene');
     },
-    [viewer]
+    [viewerRef]
   );
 
   return {
