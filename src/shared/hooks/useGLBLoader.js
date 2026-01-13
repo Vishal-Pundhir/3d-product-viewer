@@ -61,7 +61,6 @@ const useGLBLoader = (viewerRef) => {
 
             // Apply transformations
             model.rotation.x = Math.PI / 2;
-            model.position.z -= 1.0;
 
             // Store reference to the model
             glbModelRef.current = model;

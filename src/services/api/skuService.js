@@ -1,109 +1,69 @@
-import ApiClient from './apiClient';
 import config from '@config/environment';
 
 /**
- * SKU Service - handles all SKU-related API calls
+ * SKU Service - handles all SKU-related operations
  */
 class SkuService {
-  constructor() {
-    this.apiClient = new ApiClient(config.api.baseUrl, {
-      timeout: 30000,
-      maxRetries: 3,
-      retryDelay: 1000,
-      cacheTimeout: 5 * 60 * 1000, // 5 minutes cache
-    });
-  }
-
-  /**
-   * Get SKU by ID
-   * @param {string} skuId - The SKU identifier
-   * @param {Object} options - Request options
-   * @returns {Promise<Object>} SKU data
-   */
-  async getSkuById(skuId, options = {}) {
-    if (!skuId) {
-      throw new Error('SKU ID is required');
-    }
-
-    try {
-      const data = await this.apiClient.get(
-        '/3d/api/v2/sku/getById',
-        {
-          params: { sku_id: skuId },
-        },
-        {
-          useCache: options.useCache !== false,
-          retry: options.retry !== false,
-        }
-      );
-
-      return this.normalizeSkuData(data);
-    } catch (error) {
-      console.error('Error fetching SKU data:', error);
-      throw this.createSkuError(error, skuId);
-    }
-  }
-
   /**
    * Get point cloud URL for SKU
    * @param {string} skuId - The SKU identifier
+   * @param {string} versionId - The version identifier
+   * @param {string} deliverType - The deliver type ("BG", "GRADIENT", or "ORIGINAL")
    * @returns {string} Point cloud URL
+   * 
+   * Note: For "BG" and "GRADIENT" deliver types, uses point_cloud_cropped.ply
+   *       For "ORIGINAL", uses point_cloud.ply
    */
-  getPointCloudUrl(skuId) {
-    return `${config.api.s3BucketUrl}/processed/${skuId}/point_cloud.ply`;
+  getPointCloudUrl(skuId, versionId, deliverType = 'ORIGINAL') {
+    const filename = (deliverType === 'BG' || deliverType === 'GRADIENT') 
+      ? 'point_cloud_cropped.ply' 
+      : 'point_cloud.ply';
+    return `${config.api.s3BucketUrl}/processed/${skuId}/${versionId}/${filename}`;
   }
 
   /**
-   * Get background URL
-   * @param {string} bgId - Background ID
-   * @returns {string} Background GLB URL
+   * Get output config URL for SKU
+   * @param {string} skuId - The SKU identifier
+   * @param {string} versionId - The version identifier
+   * @returns {string} Output config URL
    */
-  getBackgroundUrl(bgId) {
-    // return `${config.api.cloudFrontUrl}/background/${bgId}/bg.glb`;
-    return `${config.api.cloudFrontUrl}/bg.glb`;
+  getOutputConfigUrl(skuId, versionId) {
+    return `${config.api.s3BucketUrl}/processed/${skuId}/${versionId}/output.json`;
   }
 
   /**
-   * Normalize SKU data response
-   * @private
+   * Fetch output config from output.json
+   * Contains metadata, deliver_type, and background URL
+   * @param {string} skuId - The SKU identifier
+   * @param {string} versionId - The version identifier
+   * @returns {Promise<Object>} Output config data (raw, as-is)
    */
-  normalizeSkuData(data) {
-    return {
-      skuId: data.sku_id,
-      config: data.config_details?.model_config || {},
-      status: data.status,
-      metadata: {
-        carName: data.car_name,
-        skuName: data.sku_name,
-        year: data.year,
-        make: data.make,
-        model: data.model,
-      },
-      raw: data, // Keep original data for backward compatibility
-    };
-  }
+  async getOutputConfig(skuId, versionId) {
+    if (!skuId || !versionId) {
+      throw new Error('SKU ID and Version ID are required');
+    }
 
-  /**
-   * Create standardized error object
-   * @private
-   */
-  createSkuError(error, skuId) {
-    return {
-      message: `Failed to fetch SKU data for ${skuId}`,
-      originalError: error,
-      skuId,
-      timestamp: new Date().toISOString(),
-    };
-  }
+    try {
+      const url = this.getOutputConfigUrl(skuId, versionId);
+      const response = await fetch(url);
 
-  /**
-   * Clear SKU cache
-   */
-  clearCache() {
-    this.apiClient.clearCache();
+      if (!response.ok) {
+        throw new Error(`Failed to fetch output config: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching output config:', error);
+      throw {
+        message: `Failed to fetch output config for ${skuId}/${versionId}`,
+        originalError: error,
+        skuId,
+        versionId,
+        timestamp: new Date().toISOString(),
+      };
+    }
   }
 }
 
 // Export singleton instance
 export default new SkuService();
-

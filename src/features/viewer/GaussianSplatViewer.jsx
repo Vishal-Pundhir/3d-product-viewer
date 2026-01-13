@@ -18,14 +18,17 @@ import {
 /**
  * GaussianSplatViewer - Main 3D Gaussian Splat Viewer Component
  * Displays 3D point cloud models with optional background and customizable controls
+ * 
+ * Background and gradient modes are controlled by deliver_type from output.json:
+ * - "BG" → enable background (uses 3d_bg_glb from output.json)
+ * - "GRADIENT" → enable gradient background
+ * - "ORIGINAL" → show as is (no background or gradient)
  */
 const GaussianSplatViewer = ({
   skuId,
+  versionId,
   autoRotate = true,
   performanceTier = null,
-  enableBackground = false,
-  enableGradient = false,
-  backgroundUrl = null,
   onLoadComplete = null,
   onError = null,
   className = '',
@@ -36,7 +39,6 @@ const GaussianSplatViewer = ({
   const lightsRef = useRef([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [customBackground, setCustomBackground] = useState(backgroundUrl);
 
   const { loadModel, cleanupModel, addLights, removeLights } = useGLBLoader(viewerRef);
 
@@ -62,21 +64,34 @@ const GaussianSplatViewer = ({
         setLoading(true);
         setError(null);
 
-        // Fetch SKU data
-        logger.info('Fetching SKU data for:', skuId);
-        const skuData = await skuService.getSkuById(skuId);
+        // Fetch output config from output.json (contains metadata and deliver_type)
+        logger.info('Fetching output config for:', skuId, versionId);
+        const outputConfig = await skuService.getOutputConfig(skuId, versionId);
 
         if (!mounted) return;
 
-        // Get point cloud URL
-        const pointCloudUrl = skuService.getPointCloudUrl(skuId);
+        // Extract car details from raw output.json
+        const carDetails = outputConfig.meta_data?.car_details || {};
+
+        // Determine background/gradient mode from deliver_type
+        // "BG" → enable background, "GRADIENT" → enable gradient, "ORIGINAL" → show as is
+        const deliverType = outputConfig.deliver_type || 'ORIGINAL';
+        const enableBackground = deliverType === 'BG';
+        const enableGradient = deliverType === 'GRADIENT';
+        const backgroundUrl = enableBackground ? outputConfig['3d_bg_glb'] : null;
+
+        logger.info('Deliver type:', deliverType, '| Background:', enableBackground, '| Gradient:', enableGradient);
+
+        // Get point cloud URL (cropped for BG/GRADIENT, original for ORIGINAL)
+        const pointCloudUrl = skuService.getPointCloudUrl(skuId, versionId, deliverType);
         logger.info('Point cloud URL:', pointCloudUrl);
 
-        // Extract camera configuration
+        // Extract camera configuration from output.json metadata
         const initialCameraPosition =
-          skuData.config?.new_perams?.initialCameraPosition || DEFAULT_CAMERA_POSITION;
+          carDetails.new_perams?.initialCameraPosition || DEFAULT_CAMERA_POSITION;
         const initialCameraDistance =
-          skuData.config?.torus_config?.torus_inner_radius || 3.5;
+          carDetails.torus_config?.torus_inner_radius || 3.5;
+        const camera_shift = carDetails.new_perams?.camera_shift || 0;
 
         // Device profiling for optimal settings
         const deviceProfiler = new DeviceProfiler(performanceTier);
@@ -107,7 +122,7 @@ const GaussianSplatViewer = ({
         if (viewer.renderer) {
           viewer.renderer.setClearColor(0x000000, 0); // Transparent
 
-          // Apply gradient background if enabled
+          // Apply gradient background if enabled (deliver_type === "GRADIENT")
           if (enableGradient && viewer.renderer.domElement?.parentElement) {
             viewer.renderer.domElement.parentElement.style.background =
               GRADIENT_BACKGROUND.style;
@@ -126,6 +141,8 @@ const GaussianSplatViewer = ({
           viewer.controls.autoRotate = autoRotate;
           viewer.controls.enableDamping = CONTROLS_CONFIG.enableDamping;
           viewer.controls.zoomSpeed = CONTROLS_CONFIG.zoomSpeed;
+          viewer.camera.position.z += camera_shift;
+          viewer.controls.target.z += camera_shift;
         }
 
         viewer.update();
@@ -134,12 +151,11 @@ const GaussianSplatViewer = ({
         lights = addLights();
         lightsRef.current = lights;
 
-        // Load background model if enabled
-        if (enableBackground) {
+        // Load background model if enabled (deliver_type === "BG")
+        if (enableBackground && backgroundUrl) {
           try {
-            const bgUrl = customBackground || skuService.getBackgroundUrl('default');
-            await loadModel(bgUrl);
-            logger.info('Background model loaded');
+            await loadModel(backgroundUrl);
+            logger.info('Background model loaded from:', backgroundUrl);
           } catch (bgError) {
             logger.warn('Background model loading failed:', bgError);
             // Don't fail the entire viewer if background fails
@@ -195,21 +211,12 @@ const GaussianSplatViewer = ({
     };
   }, [
     skuId,
+    versionId,
     autoRotate,
     performanceTier,
-    enableBackground,
-    enableGradient,
-    customBackground,
     onLoadComplete,
     onError,
   ]);
-
-  // Handle background URL changes
-  useEffect(() => {
-    if (backgroundUrl) {
-      setCustomBackground(backgroundUrl);
-    }
-  }, [backgroundUrl]);
 
   if (error) {
     return (
@@ -238,11 +245,9 @@ const GaussianSplatViewer = ({
 
 GaussianSplatViewer.propTypes = {
   skuId: PropTypes.string.isRequired,
+  versionId: PropTypes.string.isRequired,
   autoRotate: PropTypes.bool,
   performanceTier: PropTypes.oneOf(['low', 'basic', 'medium', 'high', 'ultra-high']),
-  enableBackground: PropTypes.bool,
-  enableGradient: PropTypes.bool,
-  backgroundUrl: PropTypes.string,
   onLoadComplete: PropTypes.func,
   onError: PropTypes.func,
   className: PropTypes.string,

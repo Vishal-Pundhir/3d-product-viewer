@@ -3,6 +3,12 @@ import { useQueryParams } from '@shared/hooks';
 
 /**
  * Custom hook for managing viewer state and logic
+ * 
+ * Note: enableBackground/enableGradient are now controlled by deliver_type
+ * from output.json, not query params. Supported deliver_type values:
+ * - "BG" → enable background (uses 3d_bg_glb from output.json)
+ * - "GRADIENT" → enable gradient background
+ * - "ORIGINAL" → show as is
  */
 const useViewer = () => {
   const params = useQueryParams();
@@ -22,11 +28,9 @@ const useViewer = () => {
   return {
     // Query parameters
     skuId: params.sku_id || params.skuId,
+    versionId: params.version_id || params.versionId,
     autoRotate: params.autoRotate !== false,
     performanceTier: params.tier || params.performanceTier,
-    enableBackground: params.bg === true || params.enableBackground === true,
-    enableGradient: params.gradient === true || params.enableGradient === true,
-    backgroundUrl: params.bgUrl || params.backgroundUrl,
 
     // State
     viewer,

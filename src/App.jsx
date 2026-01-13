@@ -5,11 +5,9 @@ import './styles/global.css';
 function App() {
   const {
     skuId,
+    versionId,
     autoRotate,
     performanceTier,
-    enableBackground,
-    enableGradient,
-    backgroundUrl,
     handleLoadComplete,
     handleError,
   } = useViewer();
@@ -23,7 +21,7 @@ function App() {
             Please provide a <code className="bg-gray-800 px-2 py-1 rounded">sku_id</code> parameter in the URL
           </p>
           <p className="text-sm text-gray-500 mt-4">
-            Example: ?sku_id=YOUR_SKU_ID
+            Example: ?sku_id=YOUR_SKU_ID&amp;version_id=YOUR_VERSION_ID
           </p>
         </div>
       </div>
@@ -35,11 +33,9 @@ function App() {
       <div className="w-screen h-screen bg-black overflow-hidden">
         <GaussianSplatViewer
           skuId={skuId}
+          versionId={versionId}
           autoRotate={autoRotate}
           performanceTier={performanceTier}
-          enableBackground={enableBackground}
-          enableGradient={enableGradient}
-          backgroundUrl={backgroundUrl}
           onLoadComplete={handleLoadComplete}
           onError={handleError}
           className="w-full h-full"
