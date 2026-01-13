@@ -141,6 +141,9 @@ const GaussianSplatViewer = ({
           viewer.controls.autoRotate = autoRotate;
           viewer.controls.enableDamping = CONTROLS_CONFIG.enableDamping;
           viewer.controls.zoomSpeed = CONTROLS_CONFIG.zoomSpeed;
+        }
+
+        if(enableBackground || enableGradient) {
           viewer.camera.position.z += camera_shift;
           viewer.controls.target.z += camera_shift;
         }
