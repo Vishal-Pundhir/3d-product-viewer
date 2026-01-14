@@ -11,7 +11,6 @@ import {
   ANGLE_DEVIATION,
   VIEWER_CONFIG,
   SPLAT_SCENE_CONFIG,
-  GRADIENT_BACKGROUND,
   CONTROLS_CONFIG,
 } from '@config/constants';
 
@@ -79,6 +78,7 @@ const GaussianSplatViewer = ({
         const enableBackground = deliverType === 'BG';
         const enableGradient = deliverType === 'GRADIENT';
         const backgroundUrl = enableBackground ? outputConfig['3d_bg_glb'] : null;
+        const groundColor = carDetails.ground_color_hex || '#78726f'; // Default fallback color
 
         logger.info('Deliver type:', deliverType, '| Background:', enableBackground, '| Gradient:', enableGradient);
 
@@ -124,9 +124,14 @@ const GaussianSplatViewer = ({
 
           // Apply gradient background if enabled (deliver_type === "GRADIENT")
           if (enableGradient && viewer.renderer.domElement?.parentElement) {
-            viewer.renderer.domElement.parentElement.style.background =
-              GRADIENT_BACKGROUND.style;
-            logger.debug('Gradient background applied');
+            const dynamicGradient = `linear-gradient(to bottom,
+              #51729c 0%,
+              #5e85b2 10%,
+              #79a4d0 30%,
+              #b9d2de 50%,
+              ${groundColor} 100%)`;
+            viewer.renderer.domElement.parentElement.style.background = dynamicGradient;
+            logger.debug('Gradient background applied with ground color:', groundColor);
           }
         }
 

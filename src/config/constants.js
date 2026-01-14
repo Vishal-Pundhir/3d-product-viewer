@@ -27,15 +27,6 @@ export const SPLAT_SCENE_CONFIG = {
   scale: [1, 1, 1],
 };
 
-export const GRADIENT_BACKGROUND = {
-  style: `linear-gradient(to bottom,
-    #51729c 0%,
-    #5e85b2 10%,
-    #79a4d0 30%,
-    #b9d2de 50%,
-    #78726f 100%)`,
-};
-
 export const LIGHTING_CONFIG = {
   ambient: { color: 0xffffff, intensity: 1.5 },
   directional1: { color: 0xffffff, intensity: 1.0, position: [5, 10, 5] },
